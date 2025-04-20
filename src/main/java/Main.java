@@ -3,6 +3,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Main {
+  enum TokenType {
+    LEFT_PAREN,
+    RIGHT_PAREN,
+    LEFT_BRACE,
+    RIGHT_BRACE,
+  }
   public static void main(String[] args) {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     System.err.println("Logs from your program will appear here!");
@@ -21,17 +27,29 @@ public class Main {
     }
 
     String fileContents = "";
+    StringBuilder result = new StringBuilder();
     try {
       fileContents = Files.readString(Path.of(filename));
+      for (int i = 0; i < fileContents.length(); i++) {
+        char c = fileContents.charAt(i);
+        result.append(getTokenType(c)).append(" ").append(c).append(" ").append("null").append("\n");
+      }
+
     } catch (IOException e) {
       System.err.println("Error reading file: " + e.getMessage());
       System.exit(1);
     }
+    System.out.print(result.toString());
+    System.out.println("EOF  null");
+  }
 
-     if (fileContents.length() > 0) {
-       throw new RuntimeException("Scanner not implemented");
-     } else {
-       System.out.println("EOF  null"); // Placeholder, remove this line when implementing the scanner
-     }
+  private static TokenType getTokenType(char c) {
+      return switch (c) {
+          case '(' -> TokenType.LEFT_PAREN;
+          case ')' -> TokenType.RIGHT_PAREN;
+          case '{' -> TokenType.LEFT_BRACE;
+          case '}' -> TokenType.RIGHT_BRACE;
+          default -> throw new IllegalArgumentException("Unknown character: " + c);
+      };
   }
 }
