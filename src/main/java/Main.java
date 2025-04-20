@@ -41,10 +41,10 @@ public class Main {
             char c = line.charAt(i);
             TokenType tokenType = getTokenType(c, lineNumber);
             if (tokenType != null) {
-                result.append(getTokenType(c, lineNumber)).append(" ").append(c).append(" ").append("null").append("\n");
+                System.out.println(tokenType + " " + c + " null");
             } else {
                 hadError = true;
-                result.append(String.format("[line %d] Error: Unexpected character: %c", lineNumber, c)).append("\n");
+                System.err.printf("[line %d] Error: Unexpected character: %c%n", lineNumber, c);
             }
           }
           lineNumber++;
@@ -53,11 +53,6 @@ public class Main {
     } catch (IOException e) {
       System.err.println("Error reading file: " + e.getMessage());
       System.exit(1);
-    }
-    if(hadError) {
-        System.err.print(result);
-    } else {
-        System.out.print(result);
     }
     System.out.println("EOF  null");
     if (hadError) {
