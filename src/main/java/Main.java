@@ -54,6 +54,12 @@ public class Main {
           case ')' -> TokenType.RIGHT_PAREN;
           case '{' -> TokenType.LEFT_BRACE;
           case '}' -> TokenType.RIGHT_BRACE;
+          case ',' -> TokenType.COMMA;
+          case '.' -> TokenType.DOT;
+          case '-' -> TokenType.MINUS;
+          case '+' -> TokenType.PLUS;
+          case ';' -> TokenType.SEMICOLON;
+          case '*' -> TokenType.STAR;
           default -> throw new IllegalArgumentException("Unknown character: " + c);
       };
   }
