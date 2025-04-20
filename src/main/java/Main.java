@@ -49,7 +49,7 @@ public class Main {
           }
           lineNumber++;
         }
-
+        result.append("EOF null");
     } catch (IOException e) {
       System.err.println("Error reading file: " + e.getMessage());
       System.exit(1);
@@ -59,7 +59,6 @@ public class Main {
     } else {
         System.out.print(result);
     }
-    System.out.println("EOF  null");
     if (hadError) {
       System.exit(65);
     }
