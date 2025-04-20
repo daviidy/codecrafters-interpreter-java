@@ -54,7 +54,11 @@ public class Main {
       System.err.println("Error reading file: " + e.getMessage());
       System.exit(1);
     }
-    System.out.print(result.toString());
+    if(hadError) {
+        System.err.print(result);
+    } else {
+        System.out.print(result);
+    }
     System.out.println("EOF  null");
     if (hadError) {
       System.exit(65);
