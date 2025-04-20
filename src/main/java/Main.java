@@ -34,11 +34,19 @@ public class Main {
     String fileContents = "";
     StringBuilder result = new StringBuilder();
     try {
-      fileContents = Files.readString(Path.of(filename));
-      for (int i = 0; i < fileContents.length(); i++) {
-        char c = fileContents.charAt(i);
-        result.append(getTokenType(c)).append(" ").append(c).append(" ").append("null").append("\n");
-      }
+        int lineNumber = 1;
+        for (String line: Files.readAllLines(Path.of(filename))) {
+          for(int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            TokenType tokenType = getTokenType(c, lineNumber);
+            if (tokenType != null) {
+                result.append(getTokenType(c, lineNumber)).append(" ").append(c).append(" ").append("null").append("\n");
+            } else {
+                result.append(String.format("[line %d] Error: Unexpected character: %c", lineNumber, c)).append("\n");
+            }
+          }
+          lineNumber++;
+        }
 
     } catch (IOException e) {
       System.err.println("Error reading file: " + e.getMessage());
@@ -48,7 +56,7 @@ public class Main {
     System.out.println("EOF  null");
   }
 
-  private static TokenType getTokenType(char c) {
+  private static TokenType getTokenType(char c, int lineNumber) {
       return switch (c) {
           case '(' -> TokenType.LEFT_PAREN;
           case ')' -> TokenType.RIGHT_PAREN;
@@ -60,7 +68,7 @@ public class Main {
           case '+' -> TokenType.PLUS;
           case ';' -> TokenType.SEMICOLON;
           case '*' -> TokenType.STAR;
-          default -> throw new IllegalArgumentException("Unknown character: " + c);
+          default -> null;
       };
   }
 }
