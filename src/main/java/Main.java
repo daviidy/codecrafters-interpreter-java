@@ -15,6 +15,7 @@ public class Main {
       SEMICOLON,
       STAR
   }
+  static boolean hadError = false;
   public static void main(String[] args) {
     System.err.println("Logs from your program will appear here!");
 
@@ -42,6 +43,7 @@ public class Main {
             if (tokenType != null) {
                 result.append(getTokenType(c, lineNumber)).append(" ").append(c).append(" ").append("null").append("\n");
             } else {
+                hadError = true;
                 result.append(String.format("[line %d] Error: Unexpected character: %c", lineNumber, c)).append("\n");
             }
           }
@@ -54,6 +56,9 @@ public class Main {
     }
     System.out.print(result.toString());
     System.out.println("EOF  null");
+    if (hadError) {
+      System.exit(65);
+    }
   }
 
   private static TokenType getTokenType(char c, int lineNumber) {
