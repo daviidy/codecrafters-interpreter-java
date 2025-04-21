@@ -20,7 +20,7 @@ public class Main {
 
     static boolean hadError = false;
     private static int current = 0;
-    private static String lineLength;
+    private static String source;
 
     public static void main(String[] args) {
         System.err.println("Logs from your program will appear here!");
@@ -41,7 +41,7 @@ public class Main {
         try {
             int lineNumber = 1;
             for (String line : Files.readAllLines(Path.of(filename))) {
-                lineLength = line;
+                source = line;
                 while (!isAtEnd()) {
                     char c = line.charAt(current);
                     TokenType tokenType = getTokenType(c, lineNumber);
@@ -78,16 +78,17 @@ public class Main {
             case '+' -> TokenType.PLUS;
             case ';' -> TokenType.SEMICOLON;
             case '*' -> TokenType.STAR;
-            case '=' -> {
-                if (lineLength.charAt(current + 1) == '=') {
-                    advance();
-                    yield TokenType.EQUAL_EQUAL;
-                } else {
-                    yield TokenType.EQUAL;
-                }
-            }
+            case '=' -> getEqualType(c);
             default -> null;
         };
+    }
+
+    private static TokenType getEqualType(char c) {
+        if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            advance();
+            return TokenType.EQUAL_EQUAL;
+        }
+        return TokenType.EQUAL;
     }
 
     private static void advance() {
@@ -95,6 +96,6 @@ public class Main {
     }
 
     private static boolean isAtEnd() {
-        return current >= lineLength.length();
+        return current >= source.length();
     }
 }
