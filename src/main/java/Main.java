@@ -99,7 +99,7 @@ public class Main {
             lexeme = tokenType == TokenType.EQUAL_EQUAL ? "==" : lexeme;
             System.out.println(tokenType + " " + lexeme + " null");
         } else {
-            System.err.println("Error: Unexpected character '" + lexeme + "' at line " + lineNumber);
+            System.err.printf("[line %d] Error: Unexpected character: %s%n", lineNumber, lexeme);
             hadError = true;
         }
     }
