@@ -45,7 +45,7 @@ public class Main {
                 while (!isAtEnd()) {
                     char c = line.charAt(current);
                     TokenType tokenType = getTokenType(c, lineNumber);
-                    printOutput(String.valueOf(tokenType), String.valueOf(c), lineNumber);
+                    printOutput(tokenType, String.valueOf(c), lineNumber);
                     advance();
                 }
                 lineNumber++;
@@ -94,9 +94,9 @@ public class Main {
         return current >= source.length();
     }
 
-    private static void printOutput(String tokenType, String lexeme, int lineNumber) {
+    private static void printOutput(TokenType tokenType, String lexeme, int lineNumber) {
         if (tokenType != null) {
-            lexeme = tokenType.equals("EQUAL_EQUAL") ? "==" : lexeme;
+            lexeme = tokenType == TokenType.EQUAL_EQUAL ? "==" : lexeme;
             System.out.println(tokenType + " " + lexeme + " null");
         } else {
             System.err.println("Error: Unexpected character '" + lexeme + "' at line " + lineNumber);
