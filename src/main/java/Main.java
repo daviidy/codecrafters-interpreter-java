@@ -16,6 +16,8 @@ public class Main {
         STAR,
         EQUAL,
         EQUAL_EQUAL,
+        BANG,
+        BANG_EQUAL,
     }
 
     static boolean hadError = false;
@@ -74,6 +76,7 @@ public class Main {
             case ';' -> TokenType.SEMICOLON;
             case '*' -> TokenType.STAR;
             case '=' -> getEqualType(c);
+            case '!' -> getBangType(c);
             default -> null;
         };
     }
@@ -84,6 +87,14 @@ public class Main {
             return TokenType.EQUAL_EQUAL;
         }
         return TokenType.EQUAL;
+    }
+
+    private static TokenType getBangType(char c) {
+        if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            advance();
+            return TokenType.BANG_EQUAL;
+        }
+        return TokenType.BANG;
     }
 
     private static void advance() {
