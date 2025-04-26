@@ -22,11 +22,13 @@ public class Main {
         LESS_EQUAL,
         GREATER,
         GREATER_EQUAL,
+        SLASH,
     }
 
-    static boolean hadError = false;
+    private static boolean hadError = false;
     private static int current = 0;
     private static String source;
+    private static boolean isComment = false;
 
     public static void main(String[] args) {
         System.err.println("Logs from your program will appear here!");
@@ -51,10 +53,14 @@ public class Main {
                 while (!isAtEnd()) {
                     char c = line.charAt(current);
                     TokenType tokenType = getTokenType(c, lineNumber);
-                    printOutput(tokenType, String.valueOf(c), lineNumber);
+                    if (!isComment) {
+                        printOutput(tokenType, String.valueOf(c), lineNumber);
+                    }
+                    isComment = false;
                     advance();
                 }
                 lineNumber++;
+                current = 0;
             }
 
         } catch (IOException e) {
@@ -82,8 +88,21 @@ public class Main {
             case '=' -> getEqualType(c);
             case '!' -> getBangType(c);
             case '<', '>' -> getOperatorType(c);
+            case '/' -> handleCommentOrGetSlash(c);
             default -> null;
         };
+    }
+
+    private static TokenType handleCommentOrGetSlash(char c) {
+        if (current + 1 < source.length() && source.charAt(current + 1) == '/') {
+            while (!isAtEnd() && source.charAt(current) != '\n') {
+                advance();
+            }
+            isComment = true;
+        } else {
+            return TokenType.SLASH;
+        }
+        return null;
     }
 
     private static TokenType getOperatorType(char c) {
