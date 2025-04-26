@@ -108,6 +108,7 @@ public class Main {
     private static void printOutput(TokenType tokenType, String lexeme, int lineNumber) {
         if (tokenType != null) {
             lexeme = tokenType == TokenType.EQUAL_EQUAL ? "==" : lexeme;
+            lexeme = tokenType == TokenType.BANG_EQUAL ? "!=" : lexeme;
             System.out.println(tokenType + " " + lexeme + " null");
         } else {
             System.err.printf("[line %d] Error: Unexpected character: %s%n", lineNumber, lexeme);
