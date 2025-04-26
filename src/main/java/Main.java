@@ -18,6 +18,10 @@ public class Main {
         EQUAL_EQUAL,
         BANG,
         BANG_EQUAL,
+        LESS,
+        LESS_EQUAL,
+        GREATER,
+        GREATER_EQUAL,
     }
 
     static boolean hadError = false;
@@ -77,8 +81,17 @@ public class Main {
             case '*' -> TokenType.STAR;
             case '=' -> getEqualType(c);
             case '!' -> getBangType(c);
+            case '<', '>' -> getOperatorType(c);
             default -> null;
         };
+    }
+
+    private static TokenType getOperatorType(char c) {
+        if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+            advance();
+            return c == '>' ? TokenType.GREATER_EQUAL : TokenType.LESS_EQUAL;
+        }
+        return c == '>' ? TokenType.GREATER : TokenType.LESS;
     }
 
     private static TokenType getEqualType(char c) {
@@ -109,6 +122,8 @@ public class Main {
         if (tokenType != null) {
             lexeme = tokenType == TokenType.EQUAL_EQUAL ? "==" : lexeme;
             lexeme = tokenType == TokenType.BANG_EQUAL ? "!=" : lexeme;
+            lexeme = tokenType == TokenType.GREATER_EQUAL ? ">=" : lexeme;
+            lexeme = tokenType == TokenType.LESS_EQUAL ? "<=" : lexeme;
             System.out.println(tokenType + " " + lexeme + " null");
         } else {
             System.err.printf("[line %d] Error: Unexpected character: %s%n", lineNumber, lexeme);
