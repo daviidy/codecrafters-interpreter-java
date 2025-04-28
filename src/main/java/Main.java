@@ -58,7 +58,9 @@ public class Main {
                     if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber);
                     }
-                    isComment = !isComment;
+                    if(isComment) {
+                        isComment = false;
+                    }
                     advance();
                 }
                 lineNumber++;
