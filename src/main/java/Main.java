@@ -8,12 +8,12 @@ public class Main {
         RIGHT_PAREN,
         LEFT_BRACE,
         RIGHT_BRACE,
-        COMMA,
-        DOT,
-        MINUS,
-        PLUS,
-        SEMICOLON,
-        STAR,
+        //COMMA,
+        //DOT,
+        //MINUS,
+        //PLUS,
+        //SEMICOLON,
+        //STAR,
         EQUAL,
         EQUAL_EQUAL,
         BANG,
@@ -81,12 +81,12 @@ public class Main {
             case ')' -> TokenType.RIGHT_PAREN;
             case '{' -> TokenType.LEFT_BRACE;
             case '}' -> TokenType.RIGHT_BRACE;
-            case ',' -> TokenType.COMMA;
-            case '.' -> TokenType.DOT;
-            case '-' -> TokenType.MINUS;
-            case '+' -> TokenType.PLUS;
-            case ';' -> TokenType.SEMICOLON;
-            case '*' -> TokenType.STAR;
+//            case ',' -> TokenType.COMMA;
+//            case '.' -> TokenType.DOT;
+//            case '-' -> TokenType.MINUS;
+//            case '+' -> TokenType.PLUS;
+//            case ';' -> TokenType.SEMICOLON;
+//            case '*' -> TokenType.STAR;
             case '=' -> getEqualType(c);
             case '!' -> getBangType(c);
             case '<', '>' -> getOperatorType(c);
