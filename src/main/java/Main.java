@@ -23,6 +23,8 @@ public class Main {
         GREATER,
         GREATER_EQUAL,
         SLASH,
+        TAB,
+        SPACE,
     }
 
     private static boolean hadError = false;
@@ -53,10 +55,10 @@ public class Main {
                 while (!isAtEnd()) {
                     char c = line.charAt(current);
                     TokenType tokenType = getTokenType(c, lineNumber);
-                    if (!isComment) {
+                    if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber);
                     }
-                    isComment = false;
+                    isComment = !isComment;
                     advance();
                 }
                 lineNumber++;
@@ -89,6 +91,8 @@ public class Main {
             case '!' -> getBangType(c);
             case '<', '>' -> getOperatorType(c);
             case '/' -> handleCommentOrGetSlash(c);
+            case '\t' -> TokenType.TAB;
+            case ' ' -> TokenType.SPACE;
             default -> null;
         };
     }
