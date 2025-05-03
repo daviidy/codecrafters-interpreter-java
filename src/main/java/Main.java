@@ -52,7 +52,7 @@ public class Main {
         try {
             for (String line : Files.readAllLines(Path.of(filename))) {
                 source = line;
-                while (!isAtEnd()) {
+                while (!isOutOfBounds(current)) {
                     char c = line.charAt(current);
                     TokenType tokenType = getTokenType(c, lineNumber);
                     if (tokenType == TokenType.STRING) {
@@ -107,7 +107,7 @@ public class Main {
     private static String getStringLiteral() {
         StringBuilder stringBuilder = new StringBuilder();
         advance();
-        while (!isAtEnd() && source.charAt(current) != '"') {
+        while (!isOutOfBounds(current) && source.charAt(current) != '"') {
             if (source.charAt(current) == '\n') {
                 lineNumber++;
             }
@@ -125,7 +125,7 @@ public class Main {
 
     private static TokenType handleCommentOrGetSlash(char c) {
         if (!isOutOfBounds(current + 1) && source.charAt(current + 1) == '/') {
-            while (!isAtEnd() && source.charAt(current) != '\n') {
+            while (!isOutOfBounds(current) && source.charAt(current) != '\n') {
                 advance();
             }
             isComment = true;
@@ -161,10 +161,6 @@ public class Main {
 
     private static void advance() {
         current++;
-    }
-
-    private static boolean isAtEnd() {
-        return current >= source.length();
     }
 
     private static boolean isOutOfBounds(int index) {
