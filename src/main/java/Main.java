@@ -24,13 +24,14 @@ public class Main {
         GREATER_EQUAL,
         SLASH,
         TAB,
-        SPACE,
+        SPACE, STRING,
     }
 
     private static boolean hadError = false;
     private static int current = 0;
     private static String source;
     private static boolean isComment = false;
+    private static int lineNumber = 1;
 
     public static void main(String[] args) {
         System.err.println("Logs from your program will appear here!");
@@ -49,13 +50,16 @@ public class Main {
         }
 
         try {
-            int lineNumber = 1;
             for (String line : Files.readAllLines(Path.of(filename))) {
                 source = line;
                 while (!isAtEnd()) {
                     char c = line.charAt(current);
                     TokenType tokenType = getTokenType(c, lineNumber);
-                    if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
+                    if (tokenType == TokenType.STRING) {
+                        String stringLiteral = getStringLiteral();
+                        printOutput(tokenType, stringLiteral, lineNumber);
+                        continue;
+                    } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber);
                     }
                     if(isComment) {
@@ -95,12 +99,32 @@ public class Main {
             case '/' -> handleCommentOrGetSlash(c);
             case '\t' -> TokenType.TAB;
             case ' ' -> TokenType.SPACE;
+            case '"' -> TokenType.STRING;
             default -> null;
         };
     }
 
+    private static String getStringLiteral() {
+        StringBuilder stringBuilder = new StringBuilder();
+        advance();
+        while (!isAtEnd() && source.charAt(current) != '"') {
+            if (source.charAt(current) == '\n') {
+                lineNumber++;
+            }
+            stringBuilder.append(source.charAt(current));
+            advance();
+
+        }
+        if (!isOutOfBounds(current) && source.charAt(current) == '"') {
+            advance();
+        } else {
+            return null;
+        }
+        return stringBuilder.toString();
+    }
+
     private static TokenType handleCommentOrGetSlash(char c) {
-        if (current + 1 < source.length() && source.charAt(current + 1) == '/') {
+        if (!isOutOfBounds(current + 1) && source.charAt(current + 1) == '/') {
             while (!isAtEnd() && source.charAt(current) != '\n') {
                 advance();
             }
@@ -112,7 +136,7 @@ public class Main {
     }
 
     private static TokenType getOperatorType(char c) {
-        if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+        if (!isOutOfBounds(current + 1) && source.charAt(current + 1) == '=') {
             advance();
             return c == '>' ? TokenType.GREATER_EQUAL : TokenType.LESS_EQUAL;
         }
@@ -120,7 +144,7 @@ public class Main {
     }
 
     private static TokenType getEqualType(char c) {
-        if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+        if (!isOutOfBounds(current + 1) && source.charAt(current + 1) == '=') {
             advance();
             return TokenType.EQUAL_EQUAL;
         }
@@ -128,7 +152,7 @@ public class Main {
     }
 
     private static TokenType getBangType(char c) {
-        if (current + 1 < source.length() && source.charAt(current + 1) == '=') {
+        if (!isOutOfBounds(current + 1) && source.charAt(current + 1) == '=') {
             advance();
             return TokenType.BANG_EQUAL;
         }
@@ -143,13 +167,23 @@ public class Main {
         return current >= source.length();
     }
 
+    private static boolean isOutOfBounds(int index) {
+        return index >= source.length();
+    }
+
     private static void printOutput(TokenType tokenType, String lexeme, int lineNumber) {
-        if (tokenType != null) {
+        if(tokenType == TokenType.STRING && lexeme == null) {
+            System.err.printf("[line %d] Error: Unterminated string.%n", lineNumber);
+            hadError = true;
+        } else if (tokenType != null) {
             lexeme = tokenType == TokenType.EQUAL_EQUAL ? "==" : lexeme;
             lexeme = tokenType == TokenType.BANG_EQUAL ? "!=" : lexeme;
             lexeme = tokenType == TokenType.GREATER_EQUAL ? ">=" : lexeme;
             lexeme = tokenType == TokenType.LESS_EQUAL ? "<=" : lexeme;
-            System.out.println(tokenType + " " + lexeme + " null");
+
+            String literal = tokenType == TokenType.STRING ? lexeme : "null";
+            lexeme = tokenType == TokenType.STRING ? "\"" + lexeme + "\"" : lexeme;
+            System.out.println(tokenType + " " + lexeme + " " + literal);
         } else {
             System.err.printf("[line %d] Error: Unexpected character: %s%n", lineNumber, lexeme);
             hadError = true;
