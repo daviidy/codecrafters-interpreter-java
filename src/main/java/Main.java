@@ -66,7 +66,6 @@ public class Main {
                     } else if (tokenType == TokenType.NUMBER) {
                         getNumber();
                         double value = Double.parseDouble(String.valueOf(numberBuilder));
-//                        String numberLiteral = (value % 1 == 0) ? String.valueOf((int) value) : String.valueOf(value);
                         String lexeme = numberBuilder.toString();
                         printOutput(tokenType, lexeme, lineNumber, String.valueOf(value));
                         numberBuilder.setLength(0);
