@@ -59,13 +59,15 @@ public class Main {
                     TokenType tokenType = getTokenType(c, lineNumber);
                     if (tokenType == TokenType.STRING) {
                         String stringLiteral = getStringLiteral();
-                        printOutput(tokenType, stringLiteral, lineNumber);
+                        printOutput(tokenType, stringLiteral, lineNumber, stringLiteral);
                         continue;
                     } else if (tokenType == TokenType.NUMBER) {
-                        Double number = getNumber();
-                        printOutput(tokenType, String.valueOf(number), lineNumber);
+                        double number = getNumber();
+                        String lexeme =  (number % 1 == 0) ? String.valueOf((int) number) : String.valueOf(number);
+                        printOutput(tokenType, lexeme, lineNumber, String.valueOf(number));
+                        continue;
                     } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
-                        printOutput(tokenType, String.valueOf(c), lineNumber);
+                        printOutput(tokenType, String.valueOf(c), lineNumber, null);
                     }
                     if(isComment) {
                         isComment = false;
@@ -112,10 +114,6 @@ public class Main {
         };
     }
 
-    // check if the character is a number 1234
-    // while the following number is a number
-    // add the number to the string
-
     private static Double getNumber() {
         StringBuilder numberBuilder = new StringBuilder();
         while (!isOutOfBounds(current) && isDigit(source.charAt(current))) {
@@ -129,9 +127,6 @@ public class Main {
                 numberBuilder.append(source.charAt(current));
                 advance();
             }
-        }
-        if (numberBuilder.isEmpty()) {
-            return null;
         }
         return Double.parseDouble(numberBuilder.toString());
     }
@@ -203,7 +198,7 @@ public class Main {
         return index >= source.length();
     }
 
-    private static void printOutput(TokenType tokenType, String lexeme, int lineNumber) {
+    private static void printOutput(TokenType tokenType, String lexeme, int lineNumber, String literal) {
         if(tokenType == TokenType.STRING && lexeme == null) {
             System.err.printf("[line %d] Error: Unterminated string.%n", lineNumber);
             hadError = true;
@@ -215,15 +210,15 @@ public class Main {
             lexeme = tokenType == TokenType.BANG_EQUAL ? "!=" : lexeme;
             lexeme = tokenType == TokenType.GREATER_EQUAL ? ">=" : lexeme;
             lexeme = tokenType == TokenType.LESS_EQUAL ? "<=" : lexeme;
-
-            String literal = tokenType == TokenType.STRING
-                    || tokenType == TokenType.NUMBER
-                    ? lexeme : "null";
             lexeme = tokenType == TokenType.STRING ? "\"" + lexeme + "\"" : lexeme;
             System.out.println(tokenType + " " + lexeme + " " + literal);
         } else {
-            System.err.printf("[line %d] Error: Unexpected character: %s%n", lineNumber, lexeme);
-            hadError = true;
+            error(lineNumber, lexeme);
         }
+    }
+
+    private static void error(int lineNumber, String lexeme) {
+        System.err.printf("[line %d] Error: Unexpected character: %s%n", lineNumber, lexeme);
+        hadError = true;
     }
 }
