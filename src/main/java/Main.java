@@ -35,6 +35,8 @@ public class Main {
     private static boolean isComment = false;
     private static int lineNumber = 1;
 
+    private static StringBuilder numberBuilder = new StringBuilder();
+
     public static void main(String[] args) {
         System.err.println("Logs from your program will appear here!");
 
@@ -62,9 +64,12 @@ public class Main {
                         printOutput(tokenType, stringLiteral, lineNumber, stringLiteral);
                         continue;
                     } else if (tokenType == TokenType.NUMBER) {
-                        double number = getNumber();
-                        String lexeme =  (number % 1 == 0) ? String.valueOf((int) number) : String.valueOf(number);
-                        printOutput(tokenType, lexeme, lineNumber, String.valueOf(number));
+                        getNumber();
+                        double value = Double.parseDouble(String.valueOf(numberBuilder));
+//                        String numberLiteral = (value % 1 == 0) ? String.valueOf((int) value) : String.valueOf(value);
+                        String lexeme = numberBuilder.toString();
+                        printOutput(tokenType, lexeme, lineNumber, String.valueOf(value));
+                        numberBuilder.setLength(0);
                         continue;
                     } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber, null);
@@ -114,8 +119,7 @@ public class Main {
         };
     }
 
-    private static Double getNumber() {
-        StringBuilder numberBuilder = new StringBuilder();
+    private static void getNumber() {
         while (!isOutOfBounds(current) && isDigit(source.charAt(current))) {
             numberBuilder.append(source.charAt(current));
             advance();
@@ -128,7 +132,6 @@ public class Main {
                 advance();
             }
         }
-        return Double.parseDouble(numberBuilder.toString());
     }
 
     private static boolean isDigit(char c) {
