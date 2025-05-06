@@ -24,7 +24,9 @@ public class Main {
         GREATER_EQUAL,
         SLASH,
         TAB,
-        SPACE, STRING,
+        SPACE,
+        STRING,
+        NUMBER
     }
 
     private static boolean hadError = false;
@@ -59,6 +61,9 @@ public class Main {
                         String stringLiteral = getStringLiteral();
                         printOutput(tokenType, stringLiteral, lineNumber);
                         continue;
+                    } else if (tokenType == TokenType.NUMBER) {
+                        Double number = getNumber();
+                        printOutput(tokenType, String.valueOf(number), lineNumber);
                     } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber);
                     }
@@ -100,8 +105,39 @@ public class Main {
             case '\t' -> TokenType.TAB;
             case ' ' -> TokenType.SPACE;
             case '"' -> TokenType.STRING;
-            default -> null;
+            default -> {
+                if (isDigit(c)) yield TokenType.NUMBER;
+                yield null;
+            }
         };
+    }
+
+    // check if the character is a number 1234
+    // while the following number is a number
+    // add the number to the string
+
+    private static Double getNumber() {
+        StringBuilder numberBuilder = new StringBuilder();
+        while (!isOutOfBounds(current) && isDigit(source.charAt(current))) {
+            numberBuilder.append(source.charAt(current));
+            advance();
+        }
+        if(!isOutOfBounds(current) && !isOutOfBounds(current + 1) && source.charAt(current) == '.' && isDigit(source.charAt(current + 1)) ) {
+            numberBuilder.append('.');
+            advance();
+            while (!isOutOfBounds(current) && isDigit(source.charAt(current))) {
+                numberBuilder.append(source.charAt(current));
+                advance();
+            }
+        }
+        if (numberBuilder.isEmpty()) {
+            return null;
+        }
+        return Double.parseDouble(numberBuilder.toString());
+    }
+
+    private static boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
     }
 
     private static String getStringLiteral() {
@@ -171,13 +207,18 @@ public class Main {
         if(tokenType == TokenType.STRING && lexeme == null) {
             System.err.printf("[line %d] Error: Unterminated string.%n", lineNumber);
             hadError = true;
+        } else if (tokenType == TokenType.NUMBER && lexeme == null) {
+            System.err.printf("[line %d] Error: Invalid number.%n", lineNumber);
+            hadError = true;
         } else if (tokenType != null) {
             lexeme = tokenType == TokenType.EQUAL_EQUAL ? "==" : lexeme;
             lexeme = tokenType == TokenType.BANG_EQUAL ? "!=" : lexeme;
             lexeme = tokenType == TokenType.GREATER_EQUAL ? ">=" : lexeme;
             lexeme = tokenType == TokenType.LESS_EQUAL ? "<=" : lexeme;
 
-            String literal = tokenType == TokenType.STRING ? lexeme : "null";
+            String literal = tokenType == TokenType.STRING
+                    || tokenType == TokenType.NUMBER
+                    ? lexeme : "null";
             lexeme = tokenType == TokenType.STRING ? "\"" + lexeme + "\"" : lexeme;
             System.out.println(tokenType + " " + lexeme + " " + literal);
         } else {
