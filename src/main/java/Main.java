@@ -37,6 +37,8 @@ public class Main {
         NIL,
         OR,
         PRINT,
+        AND,
+        CLASS,
         RETURN,
         SUPER,
         THIS,
@@ -56,8 +58,8 @@ public class Main {
 
     static {
         keywords = new HashMap<>();
-        keywords.put("and", TokenType.EQUAL);
-        keywords.put("class", TokenType.EQUAL);
+        keywords.put("and", TokenType.AND);
+        keywords.put("class", TokenType.CLASS);
         keywords.put("else",   TokenType.ELSE);
         keywords.put("false",  TokenType.FALSE);
         keywords.put("for",    TokenType.FOR);
@@ -73,9 +75,6 @@ public class Main {
         keywords.put("var",    TokenType.VAR);
         keywords.put("while",  TokenType.WHILE);
     }
-
-    private static StringBuilder numberBuilder = new StringBuilder();
-
     public static void main(String[] args) {
         System.err.println("Logs from your program will appear here!");
 
@@ -104,17 +103,20 @@ public class Main {
                         continue;
                     } else if (tokenType == TokenType.NUMBER) {
                         getNumber();
-                        double value = Double.parseDouble(String.valueOf(numberBuilder));
-                        String lexeme = numberBuilder.toString();
+                        String lexeme = source.substring(start, current);
+                        double value = Double.parseDouble(lexeme.charAt(0) == '.' ? "0" + lexeme : lexeme);
                         printOutput(tokenType, lexeme, lineNumber, String.valueOf(value));
-                        numberBuilder.setLength(0);
                         continue;
                     } else if (tokenType == TokenType.IDENTIFIER) {
                         String lexeme = source.substring(start, current);
                         printOutput(tokenType, lexeme, lineNumber, null);
                         continue;
                     } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
-                        printOutput(tokenType, String.valueOf(c), lineNumber, null);
+                        if (keywords.containsValue(tokenType)) {
+                            printOutput(tokenType, String.valueOf(source.substring(start, current)), lineNumber, null);
+                        } else {
+                            printOutput(tokenType, String.valueOf(source.charAt(current)), lineNumber, null);
+                        }
                     }
                     if(isComment) {
                         isComment = false;
@@ -168,7 +170,6 @@ public class Main {
                         yield TokenType.IDENTIFIER;
                     }
                 } else if (isDigit(c)) {
-                    getNumber();
                     yield TokenType.NUMBER;
                 }
                 yield null;
@@ -189,15 +190,13 @@ public class Main {
     }
 
     private static void getNumber() {
+        start = current;
         while (!isOutOfBounds(current) && isDigit(source.charAt(current))) {
-            numberBuilder.append(source.charAt(current));
             advance();
         }
         if(!isOutOfBounds(current) && !isOutOfBounds(current + 1) && source.charAt(current) == '.' && isDigit(source.charAt(current + 1)) ) {
-            numberBuilder.append('.');
             advance();
             while (!isOutOfBounds(current) && isDigit(source.charAt(current))) {
-                numberBuilder.append(source.charAt(current));
                 advance();
             }
         }
