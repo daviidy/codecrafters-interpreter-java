@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     enum TokenType {
@@ -26,14 +28,51 @@ public class Main {
         TAB,
         SPACE,
         STRING,
-        NUMBER
+        NUMBER,
+        ELSE,
+        FALSE,
+        FOR,
+        FUN,
+        IF,
+        NIL,
+        OR,
+        PRINT,
+        RETURN,
+        SUPER,
+        THIS,
+        TRUE,
+        VAR,
+        WHILE,
+        IDENTIFIER,
     }
 
     private static boolean hadError = false;
     private static int current = 0;
+    private static int start = 0;
     private static String source;
     private static boolean isComment = false;
     private static int lineNumber = 1;
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", TokenType.EQUAL);
+        keywords.put("class", TokenType.EQUAL);
+        keywords.put("else",   TokenType.ELSE);
+        keywords.put("false",  TokenType.FALSE);
+        keywords.put("for",    TokenType.FOR);
+        keywords.put("fun",    TokenType.FUN);
+        keywords.put("if",     TokenType.IF);
+        keywords.put("nil",    TokenType.NIL);
+        keywords.put("or",     TokenType.OR);
+        keywords.put("print",  TokenType.PRINT);
+        keywords.put("return", TokenType.RETURN);
+        keywords.put("super",  TokenType.SUPER);
+        keywords.put("this",   TokenType.THIS);
+        keywords.put("true",   TokenType.TRUE);
+        keywords.put("var",    TokenType.VAR);
+        keywords.put("while",  TokenType.WHILE);
+    }
 
     private static StringBuilder numberBuilder = new StringBuilder();
 
@@ -70,6 +109,9 @@ public class Main {
                         printOutput(tokenType, lexeme, lineNumber, String.valueOf(value));
                         numberBuilder.setLength(0);
                         continue;
+                    } else if (tokenType == TokenType.IDENTIFIER) {
+                        String lexeme = source.substring(start, current);
+                        printOutput(tokenType, lexeme, lineNumber, null);
                     } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber, null);
                     }
@@ -112,10 +154,37 @@ public class Main {
             case ' ' -> TokenType.SPACE;
             case '"' -> TokenType.STRING;
             default -> {
-                if (isDigit(c)) yield TokenType.NUMBER;
+                if (isAlpha(c)) {
+                    start = current;
+                    while (!isOutOfBounds(current) && isAlphaNumeric(source.charAt(current))) {
+                        advance();
+                    }
+                    String lexeme = source.substring(start, current);
+                    TokenType type = keywords.get(lexeme);
+                    if (type != null) {
+                        yield type;
+                    } else {
+                        yield TokenType.IDENTIFIER;
+                    }
+                } else if (isDigit(c)) {
+                    getNumber();
+                    yield TokenType.NUMBER;
+                }
                 yield null;
             }
         };
+    }
+
+    private static boolean isWhitespace(char c) {
+        return c == ' ' || c == '\t' || c == '\n';
+    }
+
+    private static boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+    }
+
+    private static boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
     private static void getNumber() {
@@ -138,22 +207,21 @@ public class Main {
     }
 
     private static String getStringLiteral() {
-        StringBuilder stringBuilder = new StringBuilder();
         advance();
+        start = current;
         while (!isOutOfBounds(current) && source.charAt(current) != '"') {
             if (source.charAt(current) == '\n') {
                 lineNumber++;
             }
-            stringBuilder.append(source.charAt(current));
             advance();
-
         }
+        String stringBuilder = source.substring(start, current);
         if (!isOutOfBounds(current) && source.charAt(current) == '"') {
             advance();
         } else {
             return null;
         }
-        return stringBuilder.toString();
+        return stringBuilder;
     }
 
     private static TokenType handleCommentOrGetSlash(char c) {
