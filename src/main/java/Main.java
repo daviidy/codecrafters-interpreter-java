@@ -112,6 +112,7 @@ public class Main {
                     } else if (tokenType == TokenType.IDENTIFIER) {
                         String lexeme = source.substring(start, current);
                         printOutput(tokenType, lexeme, lineNumber, null);
+                        continue;
                     } else if (!isComment && tokenType != TokenType.SPACE && tokenType != TokenType.TAB) {
                         printOutput(tokenType, String.valueOf(c), lineNumber, null);
                     }
